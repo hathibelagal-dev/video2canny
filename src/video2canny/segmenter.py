@@ -5,6 +5,8 @@ import os
 from PIL import Image
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+model = Sam2Model.from_pretrained("facebook/sam2-hiera-large").to(device)
+processor = Sam2Processor.from_pretrained("facebook/sam2-hiera-large")
 
 def _mask_object(raw_image, mask_path, output_path="/tmp/output_image.png"):
     mask = Image.open(mask_path).convert("L")
@@ -20,10 +22,7 @@ def _mask_object(raw_image, mask_path, output_path="/tmp/output_image.png"):
 
     return result
 
-def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = Sam2Model.from_pretrained("facebook/sam2-hiera-large").to(device)
-    processor = Sam2Processor.from_pretrained("facebook/sam2-hiera-large")
+def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10):    
     if raw_image is None:
         if not image_path:
             print("No image path provided")
@@ -39,7 +38,9 @@ def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10)
     with torch.no_grad():
         outputs = model(**inputs)
 
-    masks = processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"])[0]
+    masks = processor.post_process_masks(
+        outputs.pred_masks.cpu(), inputs["original_sizes"],
+    )[0]
 
     if len(masks) > 0:
         print(f"Found {len(masks)} masks")
