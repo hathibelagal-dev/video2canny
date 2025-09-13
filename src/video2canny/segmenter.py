@@ -22,7 +22,7 @@ def _mask_object(raw_image, mask_path, output_path="/tmp/output_image.png"):
 
     return result
 
-def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10):    
+def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10, points_group = None):    
     if raw_image is None:
         if not image_path:
             print("No image path provided")
@@ -30,8 +30,12 @@ def generate_mask(image_path=None, invert = False, raw_image = None, x=10, y=10)
         print(f"Processing image {image_path}")
         raw_image = Image.open(image_path)    
 
-    input_points = [[[[x, y]]]]
-    input_labels = [[[1]]]
+    if not points_group:        
+        input_points = [[[[x, y]]]]
+        input_labels = [[[1]]]
+    else:        
+        input_points = [[[[point[0], point[1]] for point in points_group]]]
+        input_labels = [[[1 for _ in range(len(points_group))]]]
 
     inputs = processor(images=[raw_image], input_points=input_points, input_labels=input_labels, return_tensors="pt").to(device)
 
