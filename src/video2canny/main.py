@@ -44,9 +44,11 @@ def canny_video(input_path, output_path, low_threshold=100, high_threshold=200):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height), isColor=False)
 
-    for frame in frames:
+    for frame in frames:        
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, low_threshold, high_threshold)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        gray_enhanced = clahe.apply(gray)
+        edges = cv2.Canny(gray_enhanced, low_threshold, high_threshold)
         out.write(edges)
 
     out.release()
@@ -60,5 +62,5 @@ if __name__ == "__main__":
     input_file = sys.argv[1]
     base_name = os.path.splitext(os.path.basename(input_file))[0]
     output_file = f"{base_name}_canny.mp4"
-    canny_video(input_file, output_file)
+    canny_video(input_file, output_file, 100, 200)
 
