@@ -56,11 +56,21 @@ def canny_video(input_path, output_path, low_threshold=100, high_threshold=200):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python canny_video.py <input_file>")
+        print("Usage: python canny_video.py <input_file> [low] [high]")
         sys.exit(1)
 
     input_file = sys.argv[1]
+    if len(sys.argv) > 2:
+        low_threshold = int(sys.argv[2])
+    else:
+        low_threshold = 100
+    if len(sys.argv) > 3:
+        high_threshold = int(sys.argv[3])
+    else:
+        high_threshold = 200
+
     base_name = os.path.splitext(os.path.basename(input_file))[0]
     output_file = f"{base_name}_canny.mp4"
-    canny_video(input_file, output_file, 100, 200)
+    canny_video(input_file, output_file, low_threshold, high_threshold)
+    
 
